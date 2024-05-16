@@ -124,21 +124,9 @@ void AArenaCharacter::OnCreateSessionComplete(FName SessionName, bool bWasSucces
 {
 	if (bWasSuccessful)
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Session Name: %s"), *SessionName.ToString()));
-		}
-
 		if (UWorld* World = GetWorld())
 		{
 			World->ServerTravel(FString("/Game/ThirdPerson/Maps/Lobby?listen"));
-		}
-	}
-	else
-	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Failed to create game session!"));
 		}
 	}
 }

@@ -6,10 +6,11 @@
 #include "MultiplayerSessionSubsystem.h"
 #include "OnlineSessionSettings.h"
 
-void UMenu::MenuSetup(int32 InNumPublicConnections, const FString& InMatchType)
+void UMenu::MenuSetup(int32 InNumPublicConnections, const FString& InMatchType, const FString& InPathToLobby)
 {
 	NumPublicConnections = InNumPublicConnections;
 	MatchType = InMatchType;
+	PathToLobby = InPathToLobby;
 	
 	AddToViewport();
 	SetVisibility(ESlateVisibility::Visible);
@@ -80,7 +81,7 @@ void UMenu::OnCreateSession(bool bWasSuccessful)
 
 		if (UWorld* World = GetWorld())
 		{
-			World->ServerTravel(FString("/Game/ThirdPerson/Maps/Lobby?listen"));
+			World->ServerTravel(PathToLobby);
 		}
 	}
 	else
@@ -89,6 +90,8 @@ void UMenu::OnCreateSession(bool bWasSuccessful)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Failed to create game session!"));
 		}
+
+		HostButton->SetIsEnabled(true);
 	}
 }
 
@@ -109,23 +112,18 @@ void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SearchResul
 			return;
 		}
 	}
+
+	if (!bWasSuccessful || SearchResults.Num() == 0)
+	{
+		JoinButton->SetIsEnabled(true);
+	}
 }
 
 void UMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 {
-	if (Result == EOnJoinSessionCompleteResult::Success)
+	if (Result != EOnJoinSessionCompleteResult::Success)
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Joined Session Successfully"));
-		}
-	}
-	else
-	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Failed to join game session!"));
-		}
+		JoinButton->SetIsEnabled(true);
 	}
 	
 	if (const IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get())
@@ -154,6 +152,8 @@ void UMenu::OnStartSession(bool bWasSuccessful)
 
 void UMenu::OnHostButtonClicked()
 {
+	HostButton->SetIsEnabled(false);
+	
 	if (MultiplayerSessionSubsystem)
 	{
 		MultiplayerSessionSubsystem->CreateSession(NumPublicConnections, MatchType);
@@ -162,6 +162,8 @@ void UMenu::OnHostButtonClicked()
 
 void UMenu::OnJoinButtonClicked()
 {
+	JoinButton->SetIsEnabled(false);
+	
 	if (MultiplayerSessionSubsystem)
 	{
 		MultiplayerSessionSubsystem->FindSessions(10000);

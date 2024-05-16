@@ -1,14 +1,18 @@
+
 ## Connection type
 
 ### Peer to Peer
 
 A lot of network traffic
+
 No authority version
 
 ### Client Server
 
-Authoritative 
+Authoritative
+
 Listen Server / Dedicated Server
+
 Unreal Engine uses this
 
 ### LAN Connection
@@ -23,7 +27,7 @@ Client:
 ### Unreal Online Subsystem
 Access functionality of online services
 
-### Session interface
+### Session Interface
 An instance of the game running on the server
 
 ### Steam Subsystem
@@ -117,6 +121,7 @@ if (OnlineSessionInterface->GetResolvedConnectString(SessionName, Address))
 2. Subsystems
 	- Created after the game instance is created
 	- Destroyed and garbage collected when the Game Instance is shut down
+
 	[Programming Subsystems in Unreal Engine | Unreal Engine 5.3 Documentation | Epic Developer Community (epicgames.com)](https://dev.epicgames.com/documentation/en-us/unreal-engine/programming-subsystems-in-unreal-engine?application_version=5.3)
 
 ## Menu Class
@@ -169,4 +174,32 @@ if (MultiplayerSessionSubsystem)
 }
 ```
 
+
+
+
+## Tracking Incoming Players
+
+### Two important class in multiplayer
+
+1. Game Mode
+	- Rules for the game
+	- Moving players to levels
+	- Selecting spawn locations
+	- Track when player joins and leaves the game
+2. Game State
+	- Let clients monitor the state of the game
+	- Not specific to individual players
+	- Array of player states
+
+
+
+
+### Track Player Login & Logout
+
+In game mode overridden functions, player is tracked when they join and exit the game:
+
+```
+virtual void PostLogin(APlayerController* NewPlayer) override;  
+virtual void Logout(AController* Exiting) override;
+```
 
