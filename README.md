@@ -1,26 +1,5 @@
-
-## Connection type
-
-### Peer to Peer
-
-A lot of network traffic
-
-No authority version
-
-### Client Server
-
-Authoritative
-
-Listen Server / Dedicated Server
-
-Unreal Engine uses this
-
-### LAN Connection
-Listen Server:
-`World->ServerTravel(“MapNameString ? listen”);`
-
-Client:
-`PlayerController->ClientTravel(“ipAddress”, ETravelType::TRAVEL_Absolute);`
+# Steam Multiplayer Plugin
+This is a plugin that utilizes Unreal Online Subsystem to manage multiplayer sessions on Steam, including a menu widget to host and join a session.
 
 ## Online Subsystem
 
