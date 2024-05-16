@@ -1,4 +1,3 @@
-
 ## Connection type
 
 ### Peer to Peer
@@ -102,6 +101,72 @@ FString Address;
 if (OnlineSessionInterface->GetResolvedConnectString(SessionName, Address))  
 {  
     if (APlayerController* PlayerController = GetGameInstance()->GetFirstLocalPlayerController())  
-    {       PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute); 
-    }}
+    {       
+	    PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute); 
+    }
+}
 ```
+
+## Create Customed Online Subsystem Plugin
+
+### What parent class?
+1. Game Instance?
+	- Spawned at game creation
+	- Not destroyed until the game is shut down
+	- Persists between levels
+2. Subsystems
+	- Created after the game instance is created
+	- Destroyed and garbage collected when the Game Instance is shut down
+	[Programming Subsystems in Unreal Engine | Unreal Engine 5.3 Documentation | Epic Developer Community (epicgames.com)](https://dev.epicgames.com/documentation/en-us/unreal-engine/programming-subsystems-in-unreal-engine?application_version=5.3)
+
+## Menu Class
+
+### Widget response to create session
+
+1. The menu widget class can get the `MultiplayerSessionSubsystem` from the `GameInstance`:
+```
+if (const UGameInstance* GameInstance = GetGameInstance())  
+{  
+    MultiplayerSessionSubsystem = GameInstance->GetSubsystem<UMultiplayerSessionSubsystem>();  
+}
+```
+
+2. Bind button in widget with variables in C++:
+```
+UPROPERTY(meta = (BindWidget))  
+TObjectPtr<UButton> HostButton;
+```
+
+3. Bind callbacks of buttons in the overridden `Initialize` function:
+```
+bool UMenu::Initialize()  
+{  
+    if (!Super::Initialize())  
+    {       return false;  
+    }  
+    if (HostButton)  
+    {       HostButton->OnClicked.AddDynamic(this, &UMenu::OnHostButtonClicked);  
+    }
+}
+```
+
+4. Manage destroying of the widget in the overridden `NativeDestruct` function
+
+### Widget class register callbacks to subsystem functions
+
+Ensures one-way dependency: Widget -> Subsystem -> Session Interface
+
+1. Custom delegate in subsystem:
+```
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultiplayerOnCreateSessionComplete, bool, bWasSuccessful);
+```
+
+2. Bind callbacks in menu widget class
+```
+if (MultiplayerSessionSubsystem)  
+{  
+    MultiplayerSessionSubsystem->MultiplayerOnCreateSessionCompleteDelegate.AddDynamic(this, &UMenu::OnCreateSessionComplete);  
+}
+```
+
+
